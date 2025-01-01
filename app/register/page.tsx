@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { register } from "@/lib/auth"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { register } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,44 +12,57 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Icons } from "@/components/icons"
-import { useToast } from "@/hooks/use-toast"
-
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Icons } from "@/components/icons";
+import { useAuth } from "@/components/auth-provider";
+import { useToast } from "@/hooks/use-toast";
+import { Square } from "lucide-react";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
 
   async function onSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
 
     try {
-      const formData = new FormData(event.target as HTMLFormElement)
-      await register(formData)
+      const formData = new FormData(event.target as HTMLFormElement);
+      await register(formData);
       toast({
         title: "Registration successful",
         description: "Please login with your credentials",
-      })
-      router.push('/login')
+      });
+      router.push("/login");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to register",
-      })
+        description:
+          error instanceof Error ? error.message : "Failed to register",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-[350px]">
+        <div className="flex justify-left p-5">
+          <Square className="h-6 w-6" />
+          <span className="hidden md:inline">TaskSphere</span>
+        </div>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>
@@ -107,6 +120,5 @@ export default function RegisterPage() {
         </form>
       </Card>
     </div>
-  )
+  );
 }
-

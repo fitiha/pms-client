@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { getAllTasks, getCurrentUser, User, Task } from '@/lib/auth'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { getAllTasks, getCurrentUser, User, Task } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 import {
   Select,
@@ -20,36 +20,41 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [statusFilter, setStatusFilter] = useState<string | undefined>()
-  const [priorityFilter, setPriorityFilter] = useState<string | undefined>()
-  const { toast } = useToast()
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("ALL");
+  const [priorityFilter, setPriorityFilter] = useState<string | undefined>(
+    "ALL"
+  );
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const fetchedTasks = await getAllTasks({ status: statusFilter, priority: priorityFilter })
-        setTasks(fetchedTasks)
+        const fetchedTasks = await getAllTasks({
+          status: statusFilter === "ALL" ? undefined : statusFilter,
+          priority: priorityFilter === "ALL" ? undefined : priorityFilter,
+        });
+        setTasks(fetchedTasks);
       } catch (error) {
-        console.error('Failed to fetch tasks:', error)
+        console.error("Failed to fetch tasks:", error);
         toast({
           variant: "destructive",
           title: "Error",
           description: "Failed to fetch tasks",
-        })
+        });
       }
-    }
+    };
 
-    const user = getCurrentUser()
-    setCurrentUser(user)
+    const user = getCurrentUser();
+    setCurrentUser(user);
 
-    fetchTasks()
-  }, [toast, statusFilter, priorityFilter])
+    fetchTasks();
+  }, [toast, statusFilter, priorityFilter]);
 
   return (
     <div className="container mx-auto py-10">
@@ -65,10 +70,10 @@ export default function TasksPage() {
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
-            <SelectItem value="TODO">To Do</SelectItem>
+            <SelectItem value="ALL">All Statuses</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
             <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-            <SelectItem value="DONE">Done</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
         <Select onValueChange={(value) => setPriorityFilter(value)}>
@@ -76,7 +81,7 @@ export default function TasksPage() {
             <SelectValue placeholder="Filter by priority" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Priorities</SelectItem>
+            <SelectItem value="ALL">All Priorities</SelectItem>
             <SelectItem value="LOW">Low</SelectItem>
             <SelectItem value="MEDIUM">Medium</SelectItem>
             <SelectItem value="HIGH">High</SelectItem>
@@ -100,10 +105,14 @@ export default function TasksPage() {
               <TableCell>{task.name}</TableCell>
               <TableCell>{task.status}</TableCell>
               <TableCell>{task.priority}</TableCell>
-              <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(task.dueDate).toLocaleDateString()}
+              </TableCell>
               <TableCell>
                 <Link href={`/tasks/${task.id}`}>
-                  <Button variant="outline" size="sm">View</Button>
+                  <Button variant="outline" size="sm">
+                    View
+                  </Button>
                 </Link>
               </TableCell>
             </TableRow>
@@ -111,6 +120,5 @@ export default function TasksPage() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
-

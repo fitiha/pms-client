@@ -1,17 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Bell, LayoutDashboard, LogOut, Menu, Settings, Square, Users, X } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { UserNav } from "@/components/user-nav"
-import { useAuth } from "@/components/auth-provider"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Bell,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Settings,
+  Square,
+  Users,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { UserNav } from "@/components/user-nav";
+import { useAuth } from "@/components/auth-provider";
 
 export function Navigation() {
-  const pathname = usePathname()
-  const { user } = useAuth()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const routes = [
     {
@@ -32,16 +41,22 @@ export function Navigation() {
       icon: Users,
       active: pathname === "/tasks" || pathname.startsWith("/tasks/"),
     },
-  ]
+  ];
 
-  if (!user) return null
+  // Check if the current page is login or signup
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+
+  if (!user || isAuthPage) return null;
 
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 font-semibold"
+        >
           <Square className="h-6 w-6" />
-          <span className="hidden md:inline">TaskMaster</span>
+          <span className="hidden md:inline">TaskSphere</span>
         </Link>
         <nav className="hidden md:flex items-center space-x-6 ml-6">
           {routes.map((route) => (
@@ -73,7 +88,11 @@ export function Navigation() {
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
@@ -97,6 +116,5 @@ export function Navigation() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -1,63 +1,62 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createTask, getCurrentUser } from '@/lib/auth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createTask, getCurrentUser } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CreateTaskPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const projectId = searchParams.get('projectId')
+  const projectId = searchParams.get("projectId");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
 
-    const formData = new FormData(event.currentTarget)
+    const formData = new FormData(event.currentTarget);
     const taskData = {
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      status: formData.get('status') as string,
-      priority: formData.get('priority') as string,
-      dueDate: formData.get('dueDate') as string,
-      projectId: parseInt(projectId || '0'),
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      status: formData.get("status") as string,
+      priority: formData.get("priority") as string,
+      dueDate: formData.get("dueDate") as string,
       assigneeId: getCurrentUser()?.id,
-    }
+    };
 
     try {
-      await createTask(taskData.projectId, taskData)
+      await createTask(parseInt(projectId || "0"), taskData);
       toast({
         title: "Task created",
         description: "Your new task has been created successfully.",
-      })
-      router.push(projectId ? `/projects/${projectId}` : '/tasks')
+      });
+      router.push(projectId ? `/projects/${projectId}` : "/tasks");
     } catch (error) {
-      console.error('Failed to create task:', error)
+      console.error("Failed to create task:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create task",
-      })
+        description:
+          error instanceof Error ? error.message : "Failed to create task",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -78,9 +77,9 @@ export default function CreateTaskPage() {
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="TODO">To Do</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
               <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-              <SelectItem value="DONE">Done</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -106,6 +105,5 @@ export default function CreateTaskPage() {
         </Button>
       </form>
     </div>
-  )
+  );
 }
-

@@ -35,7 +35,7 @@ export default function CreateProjectPage() {
       endDate: formData.get('endDate') as string || null,
       ownerId: getCurrentUser()?.id,
     }
-
+    console.log("firstName", projectData)
     try {
       await createProject(projectData)
       toast({
@@ -74,9 +74,9 @@ export default function CreateProjectPage() {
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="PLANNING">Planning</SelectItem>
-              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+              <SelectItem value="ONGOING">Ongoinig</SelectItem>
               <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="ARCHIVED">Archived</SelectItem>
             </SelectContent>
           </Select>
         </div>

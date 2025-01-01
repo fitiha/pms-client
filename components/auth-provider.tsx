@@ -2,14 +2,15 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentUser, User } from '@/lib/auth'
+import { getCurrentUser, fetchUserDetails, User } from '@/lib/auth'
 
 type AuthContextType = {
   user: User | null
   loading: boolean
+  setUser: (user: User | null) => void
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true })
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true, setUser: () => {} })
 
 export const useAuth = () => useContext(AuthContext)
 
@@ -22,19 +23,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkUser = async () => {
       const currentUser = getCurrentUser()
       if (currentUser) {
-        setUser(currentUser)
-        console.log("currentUser", currentUser)
-      } else {
-        router.push('/login')
+        try {
+          const userDetails = await fetchUserDetails(currentUser.id)
+          setUser({ ...currentUser, ...userDetails })
+        } catch (error) {
+          console.error('Failed to fetch user details:', error)
+          setUser(null)
+        }
       }
       setLoading(false)
     }
 
     checkUser()
-  }, [router])
+  }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, setUser }}>
       {children}
     </AuthContext.Provider>
   )

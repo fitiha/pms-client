@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { login } from "@/lib/auth"
+import { fetchUserDetails, getCurrentUser, login } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,12 +16,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
+import { useAuth } from "@/components/auth-provider"
 import { useToast } from "@/hooks/use-toast"
+import { Square } from "lucide-react"
+
+
+
 
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const { user, setUser } = useAuth() // Access setUser function
+
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard')
+    }
+  }, [user, router])
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -29,10 +41,13 @@ export default function LoginPage() {
 
     try {
       const formData = new FormData(event.target as HTMLFormElement)
-      console.log("formData", formData)
       await login(formData)
+      const currentUser = getCurrentUser()
+      if (currentUser) {
+        const userDetails = await fetchUserDetails(currentUser.id)
+        setUser({ ...currentUser, ...userDetails })
+      }
       router.push('/dashboard')
-      router.refresh()
     } catch (error) {
       toast({
         variant: "destructive",
@@ -47,6 +62,10 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-[350px]">
+          <div className="flex justify-left p-5">
+            <Square className="h-6 w-6" />
+            <span className="hidden md:inline">TaskSphere</span>
+          </div>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
@@ -94,6 +113,5 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
-  )
+  );
 }
-
